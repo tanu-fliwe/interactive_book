@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Match Skills to Jobs - FIWE LLC</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #FFF5E6 0%, #FFE8CC 100%);
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #FF8533 0%, #FF6B35 100%);
+            padding: 25px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+        }
+        
+        .grade-badge {
+            display: inline-block;
+            background: white;
+            color: #FF6B35;
+            padding: 8px 25px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 18px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            color: white;
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .instructions {
+            background: linear-gradient(135deg, #A8E6A3 0%, #8FD98E 100%);
+            padding: 20px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: 600;
+            color: #2D5016;
+            border-left: 5px solid #5FA052;
+            margin: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(143, 217, 142, 0.3);
+        }
+        
+        .game-wrapper {
+            padding: 30px;
+        }
+        
+        .jobs-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .job-pocket {
+            background: linear-gradient(135deg, #FFF9F0 0%, #FFE5CC 100%);
+            border: 3px dashed #FF8533;
+            border-radius: 20px;
+            padding: 20px 12px;
+            min-height: 180px;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(255, 133, 51, 0.1);
+        }
+        
+        .job-pocket::before {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            background: linear-gradient(135deg, #FF8533 0%, #FFB366 100%);
+            border-radius: 20px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: -1;
+        }
+        
+        .job-pocket:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(255, 133, 51, 0.2);
+        }
+        
+        .job-pocket.drag-over {
+            border-color: #FF6B35;
+            border-style: solid;
+            background: linear-gradient(135deg, #FFE5CC 0%, #FFD4A3 100%);
+            transform: scale(1.05);
+            box-shadow: 0 8px 30px rgba(255, 107, 53, 0.4);
+        }
+        
+        .job-pocket.correct {
+            background: linear-gradient(135deg, #D4F1D4 0%, #B8E6B8 100%);
+            border-color: #4CAF50;
+            border-style: solid;
+            animation: successPulse 0.6s ease;
+        }
+        
+        .job-pocket.incorrect {
+            background: linear-gradient(135deg, #FFE5E5 0%, #FFCCCC 100%);
+            border-color: #F44336;
+            border-style: solid;
+            animation: shakePocket 0.5s ease;
+        }
+        
+        @keyframes successPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+        
+        @keyframes shakePocket {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        
+        .job-emoji {
+            font-size: 42px;
+            margin-bottom: 8px;
+            display: block;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.1));
+        }
+        
+        .job-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+            line-height: 1.3;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .cards-bank {
+            background: linear-gradient(135deg, #F5F5F5 0%, #E8E8E8 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .cards-bank-title {
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 20px;
+        }
+        
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+        }
+        
+        .skill-card {
+            background: linear-gradient(135deg, #FFFEF7 0%, #FFF4DC 100%);
+            border: 3px solid #5D4E37;
+            border-radius: 15px;
+            padding: 18px 10px;
+            cursor: grab;
+            text-align: center;
+            font-weight: 600;
+            font-size: 12px;
+            color: #333;
+            box-shadow: 0 6px 20px rgba(93, 78, 55, 0.2);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            position: relative;
+            line-height: 1.4;
+        }
+        
+        .skill-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #FFD700 0%, #FFA500 100%);
+            border-radius: 15px 15px 0 0;
+        }
+        
+        .skill-card:hover {
+            transform: translateY(-8px) rotate(2deg);
+            box-shadow: 0 12px 35px rgba(93, 78, 55, 0.35);
+            border-color: #FF8533;
+        }
+        
+        .skill-card:active {
+            cursor: grabbing;
+        }
+        
+        .skill-card.dragging {
+            opacity: 0.5;
+            transform: rotate(8deg) scale(0.9);
+            cursor: grabbing;
+        }
+        
+        .skill-card.placed {
+            cursor: default;
+            opacity: 0.9;
+        }
+        
+        .skill-text {
+            font-size: 13px;
+            font-weight: 700;
+            color: #2D2D2D;
+            margin-bottom: 8px;
+        }
+        
+        .skill-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #FF6B35;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            display: block;
+            margin-top: 5px;
+        }
+        
+        .controls {
+            text-align: center;
+            margin: 25px 0;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #FF8533 0%, #FF6B35 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.3);
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .btn:hover {
+            background: linear-gradient(135deg, #FF6B35 0%, #FF5722 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(-1px);
+        }
+        
+        .btn:disabled {
+            background: linear-gradient(135deg, #CCC 0%, #999 100%);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .btn.secondary {
+            background: linear-gradient(135deg, #6C757D 0%, #5A6268 100%);
+        }
+        
+        .btn.secondary:hover {
+            background: linear-gradient(135deg, #5A6268 0%, #4E555B 100%);
+        }
+        
+        .score-display {
+            text-align: center;
+            font-size: 28px;
+            font-weight: 700;
+            margin: 20px 0;
+            display: none;
+            padding: 20px;
+            background: linear-gradient(135deg, #FFF9E6 0%, #FFE5B3 100%);
+            border-radius: 15px;
+            border: 3px solid #FFB366;
+        }
+        
+        .score-number {
+            color: #FF6B35;
+            font-size: 42px;
+        }
+        
+        .feedback {
+            text-align: center;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px 30px;
+            font-size: 20px;
+            font-weight: 600;
+            display: none;
+            animation: slideDown 0.5s ease;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .feedback.excellent {
+            background: linear-gradient(135deg, #D4F1D4 0%, #B8E6B8 100%);
+            color: #2D5016;
+            border: 3px solid #4CAF50;
+        }
+        
+        .feedback.good {
+            background: linear-gradient(135deg, #FFF9E6 0%, #FFE5B3 100%);
+            color: #85640D;
+            border: 3px solid #FFC107;
+        }
+        
+        .feedback.try-again {
+            background: linear-gradient(135deg, #FFE5E5 0%, #FFCCCC 100%);
+            color: #8B0000;
+            border: 3px solid #F44336;
+        }
+        
+        .feedback-emoji {
+            font-size: 48px;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 25px;
+            background: linear-gradient(135deg, #F5F5F5 0%, #E8E8E8 100%);
+            color: #666;
+            font-size: 14px;
+            border-top: 3px solid #DDD;
+        }
+        
+        .footer strong {
+            color: #FF6B35;
+            font-size: 16px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #E0E0E0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50 0%, #8BC34A 100%);
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+        
+        @media (max-width: 900px) {
+            .jobs-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .cards-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .jobs-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .cards-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .header h1 {
+                font-size: 22px;
+            }
+            
+            .btn {
+                padding: 12px 25px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="grade-badge">Grade 3</div>
+            <h1>Match Skills to Jobs</h1>
+        </div>
+        
+        <div class="instructions">
+            🎯 Drag each skill card to the correct job pocket below
+        </div>
+        
+        <div class="game-wrapper">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
+            
+            <div class="jobs-grid" id="jobPockets">
+                <div class="job-pocket" data-job="0">
+                    <span class="job-emoji">🧸</span>
+                    <div class="job-title">Toy Shelf<br>Organizer</div>
+                </div>
+                <div class="job-pocket" data-job="1">
+                    <span class="job-emoji">📚</span>
+                    <div class="job-title">Story<br>Teller</div>
+                </div>
+                <div class="job-pocket" data-job="2">
+                    <span class="job-emoji">🎵</span>
+                    <div class="job-title">Choir<br>Singer</div>
+                </div>
+                <div class="job-pocket" data-job="3">
+                    <span class="job-emoji">🌻</span>
+                    <div class="job-title">Garden<br>Helper</div>
+                </div>
+                <div class="job-pocket" data-job="4">
+                    <span class="job-emoji">📖</span>
+                    <div class="job-title">Reader</div>
+                </div>
+                <div class="job-pocket" data-job="5">
+                    <span class="job-emoji">🧹</span>
+                    <div class="job-title">Classroom<br>Cleaner</div>
+                </div>
+                <div class="job-pocket" data-job="6">
+                    <span class="job-emoji">🔧</span>
+                    <div class="job-title">Handy<br>Helper</div>
+                </div>
+                <div class="job-pocket" data-job="7">
+                    <span class="job-emoji">🎨</span>
+                    <div class="job-title">Card<br>Illustrator</div>
+                </div>
+                <div class="job-pocket" data-job="8">
+                    <span class="job-emoji">🧮</span>
+                    <div class="job-title">Math<br>Tutor</div>
+                </div>
+                <div class="job-pocket" data-job="9">
+                    <span class="job-emoji">🍪</span>
+                    <div class="job-title">Snack<br>Chef</div>
+                </div>
+            </div>
+            
+            <div class="cards-bank">
+                <div class="cards-bank-title">📦 Skill Cards - Drag to Match!</div>
+                <div class="cards-grid" id="skillCards">
+                    <div class="skill-card" draggable="true" data-skill="4" data-correct="0">
+                        <div class="skill-text">ORGANIZING<br>SKILL</div>
+                        <span class="skill-number">4</span>
+                    </div>
+                    <div class="skill-card" draggable="true" data-skill="10" data-correct="1">
+                        <div class="skill-text">STORY-TELLING<br>SKILL</div>
+                        <span class="skill-number">10</span>
+                    </div>
+                    <div class="skill-card" draggable="true" data-skill="9" data-correct="2">
+                        <div class="skill-text">SINGING<br>SKILL</div>
+                        <span class="skill-number">9</span>
+                    </div>
+                    <div class="skill-card" draggable="true" data-skill="5" data-correct="3">
+                        <div class="skill-text">GARDENING<br>SKILL</div>
+                        <span class="skill-number">5</span>
+                    </div>
+                    <div class="skill-card" draggable="true" data-skill="2" data-correct="4">
+                        <div class="skill-text">READING<br>SKILL</div>
+                        <span class="skill-number">2</span>
+                    </div>
+                    <div class="skill-card" draggable="true" data-skill="3" data-correct="5">
+                        <div class="skill-text">CLEANING<br>SKILL</div>
+                        <span class="skill-number">3</span>
+                    </div>
+                    <div class="skill-card" draggable="true" data-skill="8" data-correct="6">
+                        <div class="skill-text">FIX-IT<br>SKILL</div>
+                        <span class="skill-number">8</span>
+                    </div>
+                    <div class="skill-card" draggable="true" data-skill="1" data-correct="7">
+                        <div class="skill-text">DRAWING<br>SKILL</div>
+                        <span class="skill-number">1</span>
+                    </div>
+                    <div class="skill-card" draggable="true" data-skill="7" data-correct="8">
+                        <div class="skill-text">MATH<br>SKILLS</div>
+                        <span class="skill-number">7</span>
+                    </div>
+                    <div class="skill-card" draggable="true" data-skill="6" data-correct="9">
+                        <div class="skill-text">COOKING<br>SKILL</div>
+                        <span class="skill-number">6</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="score-display" id="scoreDisplay">
+                Your Score: <span class="score-number" id="scoreNumber">0</span> / 10
+            </div>
+            
+            <div class="controls">
+                <button class="btn" id="checkBtn" disabled>Check My Answers</button>
+                <button class="btn secondary" id="retryBtn" style="display: none;">Try Again</button>
+                <button class="btn secondary" id="showSolutionBtn" style="display: none;">Show Solution</button>
+            </div>
+            
+            <div class="feedback" id="feedback"></div>
+        </div>
+        
+        <div class="footer">
+            <strong>FIWE LLC</strong> - Financial Literacy Education<br>
+            Lesson 1: Money & Me - Where Does Money Come From?<br>
+            <em>Duplicating this material is illegal</em>
+        </div>
+    </div>
+
+    <script>
+        let draggedCard = null;
+        let placements = {};
+        
+        const cards = document.querySelectorAll('.skill-card');
+        const pockets = document.querySelectorAll('.job-pocket');
+        const progressBar = document.getElementById('progressBar');
+        const checkBtn = document.getElementById('checkBtn');
+        
+        // Initialize drag and drop
+        cards.forEach(card => {
+            card.addEventListener('dragstart', handleDragStart);
+            card.addEventListener('dragend', handleDragEnd);
+        });
+        
+        pockets.forEach(pocket => {
+            pocket.addEventListener('dragover', handleDragOver);
+            pocket.addEventListener('drop', handleDrop);
+            pocket.addEventListener('dragleave', handleDragLeave);
+            pocket.addEventListener('dragenter', handleDragEnter);
+        });
+        
+        function handleDragStart(e) {
+            draggedCard = this;
+            this.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/html', this.innerHTML);
+        }
+        
+        function handleDragEnd(e) {
+            this.classList.remove('dragging');
+        }
+        
+        function handleDragEnter(e) {
+            this.classList.add('drag-over');
+        }
+        
+        function handleDragOver(e) {
+            if (e.preventDefault) {
+                e.preventDefault();
+            }
+            e.dataTransfer.dropEffect = 'move';
+            return false;
+        }
+        
+        function handleDragLeave(e) {
+            this.classList.remove('drag-over');
+        }
+        
+        function handleDrop(e) {
+            if (e.stopPropagation) {
+                e.stopPropagation();
+            }
+            
+            this.classList.remove('drag-over');
+            
+            if (draggedCard) {
+                // Remove from previous pocket
+                const previousPocket = draggedCard.parentElement;
+                if (previousPocket.classList.contains('job-pocket')) {
+                    delete placements[previousPocket.dataset.job];
+                }
+                
+                // Add to new pocket
+                this.appendChild(draggedCard);
+                draggedCard.classList.add('placed');
+                placements[this.dataset.job] = draggedCard.dataset.skill;
+                
+                // Update progress
+                updateProgress();
+                
+                // Enable check button if all placed
+                if (Object.keys(placements).length === 10) {
+                    checkBtn.disabled = false;
+                }
+            }
+            
+            return false;
+        }
+        
+        function updateProgress() {
+            const progress = (Object.keys(placements).length / 10) * 100;
+            progressBar.style.width = progress + '%';
+        }
+        
+        // Check answers
+        checkBtn.addEventListener('click', function() {
+            let correct = 0;
+            
+            cards.forEach(card => {
+                const pocket = card.parentElement;
+                if (pocket.classList.contains('job-pocket')) {
+                    const isCorrect = pocket.dataset.job === card.dataset.correct;
+                    
+                    if (isCorrect) {
+                        correct++;
+                        pocket.classList.add('correct');
+                    } else {
+                        pocket.classList.add('incorrect');
+                    }
+                }
+            });
+            
+            // Show score
+            const scoreDisplay = document.getElementById('scoreDisplay');
+            const scoreNumber = document.getElementById('scoreNumber');
+            scoreNumber.textContent = correct;
+            scoreDisplay.style.display = 'block';
+            
+            // Show feedback
+            const feedback = document.getElementById('feedback');
+            feedback.style.display = 'block';
+            
+            if (correct >= 8) {
+                feedback.className = 'feedback excellent';
+                feedback.innerHTML = '<span class="feedback-emoji">🌟</span>Excellent! You matched the skills to the right jobs!';
+            } else if (correct >= 5) {
+                feedback.className = 'feedback good';
+                feedback.innerHTML = '<span class="feedback-emoji">👍</span>Good work! You\'re getting the hang of it.';
+            } else {
+                feedback.className = 'feedback try-again';
+                feedback.innerHTML = '<span class="feedback-emoji">💪</span>Keep practicing! You\'ll get better at matching skills to jobs.';
+            }
+            
+            // Update button visibility
+            this.style.display = 'none';
+            document.getElementById('retryBtn').style.display = 'inline-block';
+            document.getElementById('showSolutionBtn').style.display = 'inline-block';
+            
+            // Disable dragging
+            cards.forEach(card => {
+                card.draggable = false;
+                card.style.cursor = 'default';
+            });
+        });
+        
+        // Retry
+        document.getElementById('retryBtn').addEventListener('click', function() {
+            location.reload();
+        });
+        
+        // Show solution
+        document.getElementById('showSolutionBtn').addEventListener('click', function() {
+            // Remove incorrect highlighting
+            pockets.forEach(p => {
+                p.classList.remove('incorrect');
+                p.classList.add('correct');
+            });
+            
+            // Place all cards correctly
+            cards.forEach(card => {
+                const correctPocket = document.querySelector(`[data-job="${card.dataset.correct}"]`);
+                correctPocket.appendChild(card);
+            });
+            
+            // Update score
+            document.getElementById('scoreNumber').textContent = '10';
+            
+            // Update feedback
+            const feedback = document.getElementById('feedback');
+            feedback.className = 'feedback excellent';
+            feedback.innerHTML = '<span class="feedback-emoji">✅</span>Here is the correct solution!';
+            feedback.style.display = 'block';
+        });
+    </script>
+</body>
+</html>
