@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Match Skills to Jobs</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: white;
+            padding: 15px;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            position: relative;
+        }
+        
+        /* Money Confetti Animation */
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            overflow: hidden;
+        }
+        
+        .money {
+            position: absolute;
+            font-size: 30px;
+            animation: fall linear forwards;
+            opacity: 0;
+        }
+        
+        @keyframes fall {
+            0% {
+                top: -50px;
+                opacity: 1;
+                transform: rotate(0deg);
+            }
+            100% {
+                top: 100vh;
+                opacity: 0.8;
+                transform: rotate(720deg);
+            }
+        }
+        
+        /* Progress Bar */
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #E0E0E0;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50 0%, #8BC34A 100%);
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+        
+        /* Skill Cards Section */
+        .cards-section {
+            margin-bottom: 50px;
+            min-height: 150px;
+            background: #FAFAFA;
+            border: 2px dashed #DDD;
+            border-radius: 10px;
+            padding: 15px;
+        }
+        
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+        }
+        
+        /* Skill Card */
+        .skill-card {
+            width: 100%;
+            height: 140px;
+            background: linear-gradient(180deg, #F5F0E8 0%, #E8DCC8 100%);
+            border: 3px solid #5D4E37;
+            cursor: grab;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(93, 78, 55, 0.25), 
+                        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            transition: all 0.2s;
+            user-select: none;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: visible;
+            border-radius: 60px 60px 12px 12px;
+        }
+        
+        .skill-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 38%;
+            background: linear-gradient(180deg, #FAF7F2 0%, #EDE8DF 100%);
+            border-bottom: 2px solid #D4C4B0;
+            border-radius: 60px 60px 0 0;
+            z-index: 0;
+        }
+        
+        .skill-card-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding: 15px 8px;
+        }
+        
+        .skill-text {
+            font-size: 11px;
+            font-weight: 700;
+            color: #2D2D2D;
+            margin-bottom: 8px;
+            line-height: 1.2;
+            text-shadow: 0 1px 1px rgba(255, 255, 255, 0.5);
+        }
+        
+        .skill-number {
+            font-size: 34px;
+            font-weight: 700;
+            color: #5D4E37;
+            display: block;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .skill-card:hover {
+            transform: translateY(-5px) rotate(2deg);
+            box-shadow: 0 8px 20px rgba(93, 78, 55, 0.35), 
+                        inset 0 1px 0 rgba(255, 255, 255, 0.4);
+            border-color: #3D2E17;
+        }
+        
+        .skill-card:active {
+            cursor: grabbing;
+        }
+        
+        .skill-card.dragging {
+            opacity: 0.6;
+            transform: rotate(8deg) scale(0.95);
+            cursor: grabbing;
+        }
+        
+        /* Card in pocket - FIXED to prevent folding overlap */
+        .skill-card.in-pocket {
+            height: 45px;
+            position: absolute;
+            top: -22px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 86%;
+            cursor: grab;
+            z-index: 10;
+            border-width: 2px;
+        }
+        
+        .skill-card.in-pocket .skill-card-content {
+            padding: 10px 3px 0;
+            justify-content: flex-start;
+        }
+        
+        .skill-card.in-pocket .skill-text {
+            font-size: 7.5px;
+            margin-bottom: 0;
+            line-height: 1;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        
+        .skill-card.in-pocket .skill-number {
+            display: none;
+        }
+        
+        /* Job Pockets Section */
+        .pockets-section {
+            margin-bottom: 25px;
+            margin-top: 40px;
+        }
+        
+        .jobs-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .job-pocket-wrapper:nth-child(n+6) {
+            margin-top: 25px;
+        }
+        
+        .job-pocket-wrapper {
+            position: relative;
+            text-align: center;
+        }
+        
+        .pocket-opening {
+            width: 100%;
+            height: 32px;
+            background: linear-gradient(180deg, #D4C4B0 0%, #C4B4A0 100%);
+            border: 2px solid #5D4E37;
+            border-bottom: none;
+            border-radius: 8px 8px 0 0;
+            position: relative;
+            margin-bottom: -2px;
+            z-index: 1;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .pocket-opening.drag-over {
+            background: linear-gradient(180deg, #FFD4A3 0%, #FFC280 100%);
+        }
+        
+        .job-pocket {
+            width: 100%;
+            min-height: 130px;
+            background: linear-gradient(180deg, #E5F3FF 0%, #D6EBFF 100%);
+            border: 2px solid #5D4E37;
+            border-radius: 0 0 10px 10px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px 8px 8px;
+            box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.08);
+            transition: all 0.2s;
+        }
+        
+        .job-pocket.drag-over {
+            border-color: #FF8533;
+            box-shadow: inset 0 3px 8px rgba(255, 133, 51, 0.2), 
+                        0 0 0 3px rgba(255, 133, 51, 0.3);
+            transform: scale(1.02);
+        }
+        
+        .job-pocket.correct {
+            border-color: #4CAF50;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.4);
+            animation: successPulse 0.6s ease;
+        }
+        
+        @keyframes successPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .job-pocket.incorrect {
+            border-color: #F44336;
+            box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.4);
+            animation: shake 0.5s ease;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+        
+        /* Custom Job Images */
+        .job-image {
+            width: 55px;
+            height: 55px;
+            margin-bottom: 8px;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+        }
+        
+        .job-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #2D2D2D;
+            line-height: 1.3;
+            text-align: center;
+            padding: 0 5px;
+            margin-bottom: 8px;
+        }
+        
+        /* Controls */
+        .controls {
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin: 20px 0 15px;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #FF8533 0%, #FF6B35 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 15px;
+            font-weight: 700;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Montserrat', sans-serif;
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn:hover {
+            background: linear-gradient(135deg, #FF6B35 0%, #FF5722 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 107, 53, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(-1px);
+        }
+        
+        .btn:disabled {
+            background: #CCC;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .btn.secondary {
+            background: linear-gradient(135deg, #6C757D 0%, #5A6268 100%);
+        }
+        
+        .btn.secondary:hover {
+            background: linear-gradient(135deg, #5A6268 0%, #4E555B 100%);
+        }
+        
+        .score-display {
+            text-align: center;
+            font-size: 20px;
+            font-weight: 700;
+            display: none;
+            padding: 15px;
+            background: #FEBF10;
+            border: 3px solid #000000;
+            border-radius: 15px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 15px rgba(254, 191, 16, 0.4);
+        }
+        
+        .score-number {
+            color: #000000;
+            font-size: 36px;
+            text-shadow: none;
+        }
+        
+        .feedback {
+            text-align: center;
+            padding: 15px 20px;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: 700;
+            display: none;
+            margin-bottom: 12px;
+            animation: slideIn 0.5s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .feedback.excellent {
+            background: #D6E8D2;
+            color: #000000;
+            border: 3px solid #000000;
+            box-shadow: 0 4px 15px rgba(214, 232, 210, 0.4);
+        }
+        
+        .feedback.good {
+            background: linear-gradient(135deg, #FFF9E6 0%, #FFE5B3 100%);
+            color: #85640D;
+            border: 3px solid #FFC107;
+            box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
+        }
+        
+        .feedback.try-again {
+            background: linear-gradient(135deg, #FFE5E5 0%, #FFCCCC 100%);
+            color: #8B0000;
+            border: 3px solid #F44336;
+            box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+        }
+        
+        .feedback-emoji {
+            font-size: 32px;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="confetti-container" id="confettiContainer"></div>
+    
+    <div class="container">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressBar"></div>
+        </div>
+        
+        <!-- Skill Cards Bank -->
+        <div class="cards-section" id="cardsSection">
+            <div class="cards-grid" id="skillCards">
+                <div class="skill-card" draggable="true" data-skill="4" data-correct="0">
+                    <div class="skill-card-content">
+                        <div class="skill-text">ORGANIZING<br>SKILL</div>
+                        <span class="skill-number">4</span>
+                    </div>
+                </div>
+                <div class="skill-card" draggable="true" data-skill="10" data-correct="1">
+                    <div class="skill-card-content">
+                        <div class="skill-text">STORY-TELLING<br>SKILL</div>
+                        <span class="skill-number">10</span>
+                    </div>
+                </div>
+                <div class="skill-card" draggable="true" data-skill="9" data-correct="2">
+                    <div class="skill-card-content">
+                        <div class="skill-text">SINGING<br>SKILL</div>
+                        <span class="skill-number">9</span>
+                    </div>
+                </div>
+                <div class="skill-card" draggable="true" data-skill="5" data-correct="3">
+                    <div class="skill-card-content">
+                        <div class="skill-text">GARDENING<br>SKILL</div>
+                        <span class="skill-number">5</span>
+                    </div>
+                </div>
+                <div class="skill-card" draggable="true" data-skill="2" data-correct="4">
+                    <div class="skill-card-content">
+                        <div class="skill-text">READING<br>SKILL</div>
+                        <span class="skill-number">2</span>
+                    </div>
+                </div>
+                <div class="skill-card" draggable="true" data-skill="3" data-correct="5">
+                    <div class="skill-card-content">
+                        <div class="skill-text">CLEANING<br>SKILL</div>
+                        <span class="skill-number">3</span>
+                    </div>
+                </div>
+                <div class="skill-card" draggable="true" data-skill="8" data-correct="6">
+                    <div class="skill-card-content">
+                        <div class="skill-text">FIX-IT<br>SKILL</div>
+                        <span class="skill-number">8</span>
+                    </div>
+                </div>
+                <div class="skill-card" draggable="true" data-skill="1" data-correct="7">
+                    <div class="skill-card-content">
+                        <div class="skill-text">DRAWING<br>SKILL</div>
+                        <span class="skill-number">1</span>
+                    </div>
+                </div>
+                <div class="skill-card" draggable="true" data-skill="7" data-correct="8">
+                    <div class="skill-card-content">
+                        <div class="skill-text">MATH<br>SKILLS</div>
+                        <span class="skill-number">7</span>
+                    </div>
+                </div>
+                <div class="skill-card" draggable="true" data-skill="6" data-correct="9">
+                    <div class="skill-card-content">
+                        <div class="skill-text">COOKING<br>SKILL</div>
+                        <span class="skill-number">6</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Job Pockets with CORRECT Image Mapping -->
+        <div class="pockets-section">
+            <div class="jobs-grid" id="jobPockets">
+                <div class="job-pocket-wrapper">
+                    <div class="pocket-opening"></div>
+                    <div class="job-pocket" data-job="0">
+                        <img src="1.png" class="job-image" alt="Toy Shelf Organizer">
+                        <div class="job-title">Toy Shelf<br>Organizer</div>
+                    </div>
+                </div>
+                <div class="job-pocket-wrapper">
+                    <div class="pocket-opening"></div>
+                    <div class="job-pocket" data-job="1">
+                        <img src="2.png" class="job-image" alt="Story Teller">
+                        <div class="job-title">Story<br>Teller</div>
+                    </div>
+                </div>
+                <div class="job-pocket-wrapper">
+                    <div class="pocket-opening"></div>
+                    <div class="job-pocket" data-job="2">
+                        <img src="8.png" class="job-image" alt="Choir Singer">
+                        <div class="job-title">Choir<br>Singer</div>
+                    </div>
+                </div>
+                <div class="job-pocket-wrapper">
+                    <div class="pocket-opening"></div>
+                    <div class="job-pocket" data-job="3">
+                        <img src="9.png" class="job-image" alt="Garden Helper">
+                        <div class="job-title">Garden<br>Helper</div>
+                    </div>
+                </div>
+                <div class="job-pocket-wrapper">
+                    <div class="pocket-opening"></div>
+                    <div class="job-pocket" data-job="4">
+                        <img src="7.png" class="job-image" alt="Reader">
+                        <div class="job-title">Reader</div>
+                    </div>
+                </div>
+                <div class="job-pocket-wrapper">
+                    <div class="pocket-opening"></div>
+                    <div class="job-pocket" data-job="5">
+                        <img src="3.png" class="job-image" alt="Classroom Cleaner">
+                        <div class="job-title">Classroom<br>Cleaner</div>
+                    </div>
+                </div>
+                <div class="job-pocket-wrapper">
+                    <div class="pocket-opening"></div>
+                    <div class="job-pocket" data-job="6">
+                        <img src="10.png" class="job-image" alt="Handy Helper">
+                        <div class="job-title">Handy<br>Helper</div>
+                    </div>
+                </div>
+                <div class="job-pocket-wrapper">
+                    <div class="pocket-opening"></div>
+                    <div class="job-pocket" data-job="7">
+                        <img src="4.png" class="job-image" alt="Card Illustrator">
+                        <div class="job-title">Card<br>Illustrator</div>
+                    </div>
+                </div>
+                <div class="job-pocket-wrapper">
+                    <div class="pocket-opening"></div>
+                    <div class="job-pocket" data-job="8">
+                        <img src="6.png" class="job-image" alt="Math Tutor">
+                        <div class="job-title">Math<br>Tutor</div>
+                    </div>
+                </div>
+                <div class="job-pocket-wrapper">
+                    <div class="pocket-opening"></div>
+                    <div class="job-pocket" data-job="9">
+                        <img src="5.png" class="job-image" alt="Snack Chef">
+                        <div class="job-title">Snack<br>Chef</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="score-display" id="scoreDisplay">
+            Score: <span class="score-number" id="scoreNumber">0</span> / 10
+        </div>
+        
+        <div class="feedback" id="feedback"></div>
+        
+        <div class="controls">
+            <button class="btn" id="checkBtn" disabled>Check Answers</button>
+            <button class="btn secondary" id="continueBtn" style="display: none;">Continue Playing</button>
+            <button class="btn secondary" id="retryBtn" style="display: none;">Start Over</button>
+            <button class="btn secondary" id="showSolutionBtn" style="display: none;">Show Solution</button>
+        </div>
+    </div>
+
+    <script>
+        let draggedCard = null;
+        let placements = {};
+        
+        const cards = document.querySelectorAll('.skill-card');
+        const pockets = document.querySelectorAll('.job-pocket');
+        const pocketOpenings = document.querySelectorAll('.pocket-opening');
+        const cardsSection = document.getElementById('cardsSection');
+        const progressBar = document.getElementById('progressBar');
+        const checkBtn = document.getElementById('checkBtn');
+        const confettiContainer = document.getElementById('confettiContainer');
+        
+        function createMoneyConfetti() {
+            const moneySymbols = ['💵', '💴', '💶', '💷', '💰', '💸', '🪙'];
+            const count = 50;
+            
+            for (let i = 0; i < count; i++) {
+                setTimeout(() => {
+                    const money = document.createElement('div');
+                    money.className = 'money';
+                    money.textContent = moneySymbols[Math.floor(Math.random() * moneySymbols.length)];
+                    money.style.left = Math.random() * 100 + '%';
+                    money.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                    money.style.fontSize = (Math.random() * 20 + 20) + 'px';
+                    confettiContainer.appendChild(money);
+                    
+                    setTimeout(() => money.remove(), 4000);
+                }, i * 50);
+            }
+        }
+        
+        cardsSection.addEventListener('dragover', handleDragOver);
+        cardsSection.addEventListener('drop', handleDropToBank);
+        cardsSection.addEventListener('dragleave', handleDragLeave);
+        
+        cards.forEach(card => {
+            card.addEventListener('dragstart', handleDragStart);
+            card.addEventListener('dragend', handleDragEnd);
+        });
+        
+        pockets.forEach(pocket => {
+            pocket.addEventListener('dragover', handleDragOver);
+            pocket.addEventListener('drop', handleDrop);
+            pocket.addEventListener('dragleave', handleDragLeave);
+            pocket.addEventListener('dragenter', handleDragEnter);
+        });
+        
+        pocketOpenings.forEach(opening => {
+            opening.addEventListener('dragover', handleDragOver);
+            opening.addEventListener('drop', handleDropOnOpening);
+            opening.addEventListener('dragleave', handleDragLeave);
+            opening.addEventListener('dragenter', handleDragEnter);
+        });
+        
+        function handleDragStart(e) {
+            draggedCard = this;
+            this.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/html', this.innerHTML);
+        }
+        
+        function handleDragEnd(e) {
+            this.classList.remove('dragging');
+        }
+        
+        function handleDragEnter(e) {
+            if (this.classList.contains('job-pocket') || this.classList.contains('pocket-opening')) {
+                this.classList.add('drag-over');
+            }
+        }
+        
+        function handleDragOver(e) {
+            if (e.preventDefault) e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            return false;
+        }
+        
+        function handleDragLeave(e) {
+            if (this.classList.contains('job-pocket') || this.classList.contains('pocket-opening')) {
+                this.classList.remove('drag-over');
+            }
+        }
+        
+        function handleDropOnOpening(e) {
+            if (e.stopPropagation) e.stopPropagation();
+            this.classList.remove('drag-over');
+            
+            if (draggedCard) {
+                const pocketWrapper = this.parentElement;
+                const pocket = pocketWrapper.querySelector('.job-pocket');
+                placeCardInPocket(pocket, pocketWrapper);
+            }
+            return false;
+        }
+        
+        function handleDrop(e) {
+            if (e.stopPropagation) e.stopPropagation();
+            this.classList.remove('drag-over');
+            
+            if (draggedCard) {
+                const pocketWrapper = this.parentElement;
+                placeCardInPocket(this, pocketWrapper);
+            }
+            return false;
+        }
+        
+        function placeCardInPocket(pocket, pocketWrapper) {
+            const previousParent = draggedCard.parentElement;
+            
+            if (previousParent.classList.contains('job-pocket-wrapper')) {
+                const oldPocket = previousParent.querySelector('.job-pocket');
+                delete placements[oldPocket.dataset.job];
+            }
+            
+            const existingCard = pocketWrapper.querySelector('.skill-card.in-pocket');
+            if (existingCard && existingCard !== draggedCard) {
+                if (previousParent.classList.contains('job-pocket-wrapper')) {
+                    previousParent.appendChild(existingCard);
+                    const oldPocket = previousParent.querySelector('.job-pocket');
+                    placements[oldPocket.dataset.job] = existingCard.dataset.skill;
+                } else {
+                    document.getElementById('skillCards').appendChild(existingCard);
+                    existingCard.classList.remove('in-pocket');
+                }
+            }
+            
+            pocketWrapper.appendChild(draggedCard);
+            draggedCard.classList.add('in-pocket');
+            placements[pocket.dataset.job] = draggedCard.dataset.skill;
+            
+            updateProgress();
+            checkBtn.disabled = Object.keys(placements).length !== 10;
+        }
+        
+        function handleDropToBank(e) {
+            if (e.stopPropagation) e.stopPropagation();
+            
+            if (draggedCard) {
+                const previousParent = draggedCard.parentElement;
+                
+                if (previousParent.classList.contains('job-pocket-wrapper')) {
+                    const pocket = previousParent.querySelector('.job-pocket');
+                    delete placements[pocket.dataset.job];
+                }
+                
+                document.getElementById('skillCards').appendChild(draggedCard);
+                draggedCard.classList.remove('in-pocket');
+                
+                updateProgress();
+                checkBtn.disabled = Object.keys(placements).length < 10;
+            }
+            return false;
+        }
+        
+        function updateProgress() {
+            const progress = (Object.keys(placements).length / 10) * 100;
+            progressBar.style.width = progress + '%';
+        }
+        
+        checkBtn.addEventListener('click', function() {
+            let correct = 0;
+            
+            cards.forEach(card => {
+                const wrapper = card.parentElement;
+                if (wrapper.classList.contains('job-pocket-wrapper')) {
+                    const pocket = wrapper.querySelector('.job-pocket');
+                    const isCorrect = pocket.dataset.job === card.dataset.correct;
+                    
+                    if (isCorrect) {
+                        correct++;
+                        pocket.classList.add('correct');
+                    } else {
+                        pocket.classList.add('incorrect');
+                    }
+                }
+            });
+            
+            document.getElementById('scoreNumber').textContent = correct;
+            document.getElementById('scoreDisplay').style.display = 'block';
+            
+            const feedback = document.getElementById('feedback');
+            feedback.style.display = 'block';
+            
+            if (correct === 10) {
+                feedback.className = 'feedback excellent';
+                feedback.innerHTML = '<span class="feedback-emoji">🌟</span>Perfect! You matched all the skills correctly!';
+                createMoneyConfetti();
+            } else if (correct >= 7) {
+                feedback.className = 'feedback good';
+                feedback.innerHTML = '<span class="feedback-emoji">👍</span>Great job! Almost there!';
+            } else {
+                feedback.className = 'feedback try-again';
+                feedback.innerHTML = '<span class="feedback-emoji">💪</span>Let\'s keep trying! You\'re learning!';
+            }
+            
+            this.style.display = 'none';
+            document.getElementById('continueBtn').style.display = 'inline-block';
+            document.getElementById('retryBtn').style.display = 'inline-block';
+            document.getElementById('showSolutionBtn').style.display = 'inline-block';
+        });
+        
+        document.getElementById('continueBtn').addEventListener('click', function() {
+            pockets.forEach(p => p.classList.remove('correct', 'incorrect'));
+            document.getElementById('scoreDisplay').style.display = 'none';
+            document.getElementById('feedback').style.display = 'none';
+            
+            checkBtn.style.display = 'inline-block';
+            checkBtn.disabled = Object.keys(placements).length !== 10;
+            
+            this.style.display = 'none';
+            document.getElementById('retryBtn').style.display = 'none';
+            document.getElementById('showSolutionBtn').style.display = 'none';
+        });
+        
+        document.getElementById('retryBtn').addEventListener('click', () => location.reload());
+        
+        document.getElementById('showSolutionBtn').addEventListener('click', function() {
+            pockets.forEach(p => {
+                p.classList.remove('incorrect');
+                p.classList.add('correct');
+            });
+            
+            cards.forEach(card => {
+                const correctPocketWrapper = document.querySelector(`[data-job="${card.dataset.correct}"]`).parentElement;
+                correctPocketWrapper.appendChild(card);
+                card.classList.add('in-pocket');
+            });
+            
+            placements = {};
+            cards.forEach(card => placements[card.dataset.correct] = card.dataset.skill);
+            
+            document.getElementById('scoreNumber').textContent = '10';
+            
+            const feedback = document.getElementById('feedback');
+            feedback.className = 'feedback excellent';
+            feedback.innerHTML = '<span class="feedback-emoji">✅</span>Here is the correct solution!';
+            feedback.style.display = 'block';
+            
+            createMoneyConfetti();
+        });
+    </script>
+</body>
+</html>
