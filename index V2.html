@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FiWe - Let's Make Learning Fun!</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background-color: #FDB913;
+            overflow-x: hidden;
+        }
+
+        .page {
+            display: none;
+            min-height: 100vh;
+            padding: 20px;
+            width: 100%;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* Home Page Styles */
+        .home-page {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 40px;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 10px;
+            flex-wrap: wrap;
+        }
+
+        .left-section {
+            flex: 0 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 450px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            /* CHANGED: Reduced from 40px to 10px to pull the window up */
+            margin-bottom: 10px; 
+        }
+
+        .logo-icon {
+            width: 80px;
+            height: 80px;
+            background: #4A5568;
+            border-radius: 10px 10px 0 0;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 32px;
+        }
+
+        .logo-icon::before {
+            content: '';
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 20px;
+            background: #4A5568;
+            border-radius: 0 0 50% 50%;
+        }
+
+        .logo-icon::after {
+            content: '';
+            position: absolute;
+            top: -20px;
+            right: -10px;
+            width: 30px;
+            height: 30px;
+            background: #FDB913;
+            border-radius: 50%;
+        }
+
+        .logo-text {
+            font-size: 48px;
+            font-style: italic;
+            color: #FDB913;
+            -webkit-text-stroke: 2px black;
+        }
+
+        .mockup-container {
+            width: 100%;
+            max-width: 450px;
+            height: auto;
+            aspect-ratio: 1;
+            background: #d4a982;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            position: relative;
+            margin-top: 0;
+        }
+
+        .mockup-top {
+            height: 50px;
+            background: #ff4f28;
+            border-radius: 10px 10px 0 0;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            gap: 8px;
+            border-bottom: 3px solid #333;
+        }
+
+        .dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 2px solid #333;
+        }
+
+        .dot.red { background: white; }
+        .dot.yellow { background: white; }
+        .dot.green { background: white; }
+
+        .mockup-content {
+            background: #D2B48C;
+            height: calc(100% - 50px);
+            border-radius: 0 0 10px 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .book-holder {
+            position: absolute;
+            bottom: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            height: 400px;
+        }
+
+        .book {
+            width: 220px;
+            height: 280px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+        }
+
+        .book-title {
+            font-weight: bold;
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .book-image {
+            width: 100%;
+            height: 180px;
+            background: linear-gradient(135deg, #90EE90, #98FB98);
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .child-avatar {
+            position: absolute;
+            bottom: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+
+        .right-section {
+            flex: 0 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            max-width: 650px;
+        }
+
+        .main-title {
+            font-size: clamp(40px, 5vw, 72px);
+            font-weight: bold;
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        .lessons-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .lesson-btn {
+            background: white;
+            border: 3px solid #333;
+            border-radius: 50px;
+            padding: clamp(12px, 2vw, 20px) clamp(20px, 3vw, 40px);
+            font-size: clamp(18px, 2vw, 24px);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .lesson-btn:hover {
+            background: #FFE082;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .lesson-page {
+            background-color: #F5F0E8;
+            color: #000000;
+        }
+
+        .instruction-banner {
+            background: linear-gradient(135deg, #D4C896 0%, #C9B877 100%);
+            padding: 30px 50px;
+            margin-bottom: 40px;
+            border-radius: 15px;
+            color: white;
+        }
+
+        .instruction-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .instruction-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+
+        .instruction-title {
+            font-size: 36px;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .instruction-list {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0 0 0;
+        }
+
+        .instruction-list li {
+            margin: 12px 0;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+
+        .instruction-list strong {
+            font-weight: 700;
+        }
+
+        .tip-box {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .tip-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .lesson-icons {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 0 20px;
+        }
+
+        .icon-group {
+            display: flex;
+            gap: 15px;
+        }
+
+        .lesson-icon {
+            width: 60px;
+            height: 60px;
+        }
+
+        .lesson-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .lesson-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .lesson-title {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .lesson-subtitle {
+            font-size: 42px;
+            font-weight: bold;
+        }
+
+        .money-decorations {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+        }
+
+        .money-burst {
+            font-size: 60px;
+        }
+
+        .lesson-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 50px;
+        }
+
+        .money-tree {
+            flex: 0 0 400px;
+            position: relative;
+        }
+
+        .tree-image {
+            width: 100%;
+            height: auto;
+        }
+
+        .lesson-buttons {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            max-width: 500px;
+        }
+
+        .action-btn {
+            background: #FDB913;
+            border: 3px solid #333;
+            border-radius: 50px;
+            padding: 25px 50px;
+            font-size: 28px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .action-btn:hover {
+            background: #FFD54F;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .girl-with-dog {
+            flex: 0 0 300px;
+            text-align: center;
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: white;
+            border: 2px solid #333;
+            border-radius: 50px;
+            padding: 12px 30px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .back-btn:hover {
+            background: #FDB913;
+            transform: translateX(-3px);
+        }
+
+        @media (max-width: 1200px) {
+            .home-page {
+                flex-direction: column;
+                gap: 30px;
+                align-items: center;
+            }
+
+            .left-section, .right-section {
+                max-width: 100%;
+            }
+
+            .lesson-content {
+                flex-direction: column;
+            }
+
+            .money-tree, .girl-with-dog {
+                flex: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .page {
+                padding: 15px;
+            }
+
+            .main-title {
+                font-size: 40px;
+            }
+
+            .lessons-grid {
+                gap: 10px;
+            }
+
+            .lesson-btn {
+                font-size: 18px;
+                padding: 15px 25px;
+            }
+
+            .lesson-title, .lesson-subtitle {
+                font-size: 28px;
+            }
+
+            .mockup-container {
+                max-width: 100%;
+            }
+
+            .logo img {
+                max-width: 180px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-title {
+                font-size: 32px;
+            }
+
+            .lessons-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .lesson-btn {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="homePage" class="page active">
+        <div class="home-page">
+            <div class="left-section">
+                <div class="logo">
+                    <img src="https://raw.githubusercontent.com/tanu-fliwe/interactive_book/3554fd5110f340ede753dacb29e2d84435d7279e/Grade%203%20Graphics/FiWe%20Logo%20with%20Name.png" alt="FiWe Logo" style="max-width: 250px; height: auto;">
+                </div>
+                <div class="mockup-container">
+                    <div class="mockup-top">
+                        <div class="dot red"></div>
+                        <div class="dot yellow"></div>
+                        <div class="dot green"></div>
+                    </div>
+                    <div class="mockup-content">
+                        <img src="https://raw.githubusercontent.com/tanu-fliwe/interactive_book/3554fd5110f340ede753dacb29e2d84435d7279e/Grade%203%20Graphics/Grade%203%20Black%20Kid%20Graphics.png" alt="Grade 3 Black Kid Graphics" style="width: 100%; height: 100%; object-fit: cover; border-radius: 0 0 10px 10px;">
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-section">
+                <div class="main-title">
+                    Let's make<br>learning fun!
+                </div>
+                <div class="lessons-grid">
+                    <button class="lesson-btn" onclick="openLesson(1)">LESSON 1</button>
+                    <button class="lesson-btn" onclick="openLesson(6)">LESSON 6</button>
+                    <button class="lesson-btn" onclick="openLesson(2)">LESSON 2</button>
+                    <button class="lesson-btn" onclick="openLesson(7)">LESSON 7</button>
+                    <button class="lesson-btn" onclick="openLesson(3)">LESSON 3</button>
+                    <button class="lesson-btn" onclick="openLesson(8)">LESSON 8</button>
+                    <button class="lesson-btn" onclick="openLesson(4)">LESSON 4</button>
+                    <button class="lesson-btn" onclick="openLesson(9)">LESSON 9</button>
+                    <button class="lesson-btn" onclick="openLesson(5)">LESSON 5</button>
+                    <button class="lesson-btn" onclick="openLesson(10)">LESSON 10</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="lesson1Page" class="page lesson-page">
+        <button class="back-btn" onclick="goHome()">← Back to Home</button>
+        
+        <div class="lesson-container">
+            <div class="lesson-header">
+                <h1 class="lesson-title">Lesson 1 - Money & Me :</h1>
+                <h2 class="lesson-subtitle">Where Does Money Come From?</h2>
+            </div>
+
+            <div class="lesson-content">
+                <div class="money-tree">
+                    <img src="https://raw.githubusercontent.com/tanu-fliwe/interactive_book/3554fd5110f340ede753dacb29e2d84435d7279e/Grade%203%20Graphics/Grade%203%20Tree%20Graphics%20Without%20BG.png" alt="Money Tree" style="width: 100%; max-width: 400px; height: auto;">
+                </div>
+
+                <div class="lesson-buttons">
+                    <button class="action-btn" onclick="openBook()">THE BOOK</button>
+                    <button class="action-btn" onclick="openActivity()">ACTIVITY</button>
+                    <button class="action-btn" onclick="openAssessment()">ASSESSMENT</button>
+                </div>
+
+                <div class="girl-with-dog">
+                    <img src="https://raw.githubusercontent.com/tanu-fliwe/interactive_book/0e65097cc4eb0cc672b4fb2a8cee29ca35b636e8/Grade%203%20Graphics/Grade%203%20Graphics%202.png" alt="Girl with Dog" style="width: 100%; max-width: 300px; height: auto;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openLesson(lessonNum) {
+            if (lessonNum === 1) {
+                document.getElementById('homePage').classList.remove('active');
+                document.getElementById('lesson1Page').classList.add('active');
+            } else {
+                alert('Lesson ' + lessonNum + ' is not yet available. Only Lesson 1 is currently implemented.');
+            }
+        }
+
+        function goHome() {
+            document.getElementById('lesson1Page').classList.remove('active');
+            document.getElementById('homePage').classList.add('active');
+        }
+
+        function openBook() {
+            alert('The Book section will open here. You can link this to a PDF or another HTML page.');
+        }
+
+        function openActivity() {
+            // Open the activity HTML file
+            // Make sure to upload Skills_Jobs_Game_Final_4.html to your GitHub repo
+            window.open('Skills_Jobs_Game_Final_4.html', '_blank');
+        }
+
+        function openAssessment() {
+            alert('The Assessment section will open here. You can link this to a quiz or another HTML page.');
+        }
+    </script>
+</body>
+</html>
